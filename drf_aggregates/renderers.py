@@ -73,7 +73,7 @@ class AggregateRenderer(renderers.BaseRenderer):
             except Exception as e:
                 raise AggregateException(str(e))
 
-            data = {'data': result}
+            data = {'data': list(result)}
 
             return json.dumps(data, cls=encoders.JSONEncoder)
         return data
@@ -138,9 +138,9 @@ class AggregateRenderer(renderers.BaseRenderer):
                 qs = qs.annotate(**aggs) if query_args.get(_GROUPBY_KEYWORD) else qs.aggregate(**aggs)
 
         if keys:
-            return list(qs.values(*keys)) if not isinstance(qs, dict) else qs
+            return qs.values(*keys) if not isinstance(qs, dict) else qs
         else:  # if there are no recognised arguments return nothing
-            return []
+            return None
 
     def process_group_by(self, qs, field):
         '''
