@@ -69,7 +69,7 @@ class AggregateRenderer(renderers.BaseRenderer):
 
             # TODO: do not raise error here but further down below so we can investigate cause
             try:
-                result = self.build_result(data['queryset'], query_args)
+                result = self.build_result(data['queryset'], query_args, preserve_order=data.get('preserve_order', False))
             except Exception as e:
                 raise AggregateException(str(e))
 
@@ -89,7 +89,7 @@ class AggregateRenderer(renderers.BaseRenderer):
         }
         return query_args
 
-    def build_result(self, qs, query_args):
+    def build_result(self, qs, query_args, preserve_order=False):
         # keys is the list of fields we want to select at the end
         keys = []
 
@@ -102,7 +102,9 @@ class AggregateRenderer(renderers.BaseRenderer):
                 qs, processed_field = self.process_group_by(qs, field)
                 group_keys.extend([field, processed_field])
 
-            qs = qs.values(*group_keys).order_by(*group_keys)
+            qs = qs.values(*group_keys)
+            if not preserve_order:
+                qs = qs.order_by(*group_keys)
             keys.extend(group_keys)
 
         # process aggregates
