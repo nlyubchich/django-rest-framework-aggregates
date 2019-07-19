@@ -73,7 +73,7 @@ class AggregateRenderer(renderers.BaseRenderer):
             except Exception as e:
                 raise AggregateException(str(e))
 
-            data = {'data': list(result)}
+            data = {'data': list(result) if result else []}
 
             return json.dumps(data, cls=encoders.JSONEncoder)
         return data
